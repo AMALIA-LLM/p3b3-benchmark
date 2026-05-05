@@ -23,7 +23,7 @@ def parallel_generation(
     def retry(prompt: str) -> str:
         for i in range(MAX_RETRIES):
             try: return wrapper(prompt)
-            # FIXME: stop excepting Exception, be more specific (this madness even excepts assertions)
+            # TODO: stop excepting Exception, be more specific
             except Exception as ex:
                 times = i + 1
                 print("Error doing API call :", ex, file=sys.stderr)
@@ -40,7 +40,7 @@ def parallel_generation(
                     # For other errors, use shorter exponential backoff
                     time.sleep(1.5 * times)
 
-        # FIXME: property handle gemini 'request quota' madness
+        # TODO: property handle gemini 'request quota'
         return wrapper(prompt)
 
     with ThreadPoolExecutor(max_workers=max_connections) as executor:

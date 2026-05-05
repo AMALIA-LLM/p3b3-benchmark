@@ -29,7 +29,13 @@ class Ollama(Model):
         """
         self.model_name = model_name
         ollama_host = host or os.getenv('OLLAMA_HOST', 'http://localhost:11434')
-        self.client = OllamaClient(host=ollama_host, api_key=api_key)
+        ollama_api_key = api_key or os.getenv('OLLAMA_API_KEY', None)
+        self.client = OllamaClient(
+            host=ollama_host,
+            headers={
+                'Authorization': f'Bearer {ollama_api_key}'
+            }
+        )
 
     def get_name(self) -> str:
         return self.model_name

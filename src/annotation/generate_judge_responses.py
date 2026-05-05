@@ -8,8 +8,8 @@ from pathlib import Path
 from typing import List, Dict, Tuple, Optional
 
 from config.settings import MAX_RETRIES, MAX_CONNECTIONS
+from src.evaluation.llm_judge_init import init_llm_judge_client
 from src.evaluation.score_with_llm import build_cumulative_context, parse_llm_evaluation
-from src.models.api_models import LangChainGemini
 from src.evaluation.prompts import PROMPT_PT_PT_EVAL, PROMPT_PT_PT_EVAL_SIMPLE, PROMPT_EN_EVAL_SIMPLE
 
 
@@ -106,7 +106,7 @@ def main():
     parser.add_argument("--results_folder", default="results", type=str, help="Path to the results folder containing conversation JSON files")
     parser.add_argument("--max_connections", type=int, default=MAX_CONNECTIONS, help="Maximum number of concurrent connections to the LLM API")
 
-    parser.add_argument("--prompt", type=str, choices=prompt_options, default="pt-pt-complete", help="Prompt type")
+    parser.add_argument("--prompt", type=str, choices=prompt_options, default="pt-pt-complete-no-accumulate", help="Prompt type")
 
     # TODO or "gemini-2.5-pro"...
     parser.add_argument("--judge_name", type=str, default='gemini-3-flash-preview', help="LLM judge name for evaluation")
@@ -125,8 +125,8 @@ def main():
     print(f"Loaded {len(conversations_db)} conversations from results folder")
 
     # Initialize LLM client
-    gemini_client = LangChainGemini(
-        model_name=args.judge_name,
+    judge_client = init_llm_judge_client(
+        judge_name=args.judge_name,
         cache_db_path=args.cache_db_path,
         max_retries=args.max_retries,
     )
@@ -195,7 +195,7 @@ def main():
     print(f"Evaluating {len(prompts_to_eval)} prompts from annotation sheet")
 
     # Generate evaluations
-    responses = gemini_client.generate_in_batch(
+    responses = judge_client.generate_in_batch(
         prompts=prompts_to_eval,
         max_connections=args.max_connections,
         thinking=False,

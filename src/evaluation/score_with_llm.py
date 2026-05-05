@@ -8,8 +8,8 @@ from pathlib import Path
 from typing import List, Dict, Tuple
 
 from config.settings import MAX_RETRIES, MAX_CONNECTIONS
+from src.evaluation.llm_judge_init import init_llm_judge_client
 from ..evaluation.prompts import PROMPT_PT_PT_EVAL
-from ..models.api_models import LangChainGemini
 
 
 
@@ -111,15 +111,12 @@ def main():
     parser.add_argument("--max_retries", type=int, default=MAX_RETRIES, help="Maximum number of retries for LLM API calls")
     args = parser.parse_args()
 
-    if "gemini" in args.judge_name:
-        judge_client = LangChainGemini(
-            model_name=args.judge_name,
-            cache_db_path=args.cache_db_path,
-            max_retries=args.max_retries,
-        )
-    else:
-        # TODO add other judge options
-        raise Exception("Invalid judge name")
+    # Initialize LLM client
+    judge_client = init_llm_judge_client(
+        judge_name=args.judge_name,
+        cache_db_path=args.cache_db_path,
+        max_retries=args.max_retries,
+    )
 
     # iterate over all outputs for a model
     for json_file in Path(args.input_folder).glob("*.json"):
