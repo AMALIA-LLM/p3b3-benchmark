@@ -185,6 +185,21 @@ cython_debug/
 logs/
 local/
 output/
-data/
+output_old/
+/data/
 p3b3_results_old/
 images/
+
+# Project-specific
+results/
+*.csv
+!resources/*.csv
+.langchain_cache.db
+*.zip
+*.pdf
+!README.pdf
+old_structure/
+.langchain_cache_v2.db
+
+# Note: /data/ with leading slash only ignores root-level data/
+# src/data/ (Python code) is NOT ignored and will be tracked

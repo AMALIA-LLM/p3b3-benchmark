@@ -1,140 +1,187 @@
-# P3B3 Evaluation Pipeline
+# P3B3 - Portuguese Language Variant Bias Evaluation
 
-Evaluation system for language models focused on European Portuguese (PT-PT) vs Brazilian Portuguese (PT-BR).
+A comprehensive framework for evaluating language model biases toward Portuguese language variants (European Portuguese vs Brazilian Portuguese) through multi-turn conversation generation and automated assessment.
 
-## Notes
+## Overview
 
-- All examples with model name used Qwen, but could be any hugging face or local model
-- You'll need a .env with a Gemini api key for the llm scores
+This project investigates whether large language models exhibit preferences or biases toward specific Portuguese language variants when generating responses. The system generates multi-turn conversations, evaluates them using multiple methods (classifier-based and LLM-as-judge), and analyzes performance across different models and prompt conditions.
 
 
-## Available Scripts
+## Project Structure
 
-- **`generate.py`**: Generates model responses (normal, PT-PT, PT-BR)
-- **`score.py`**: Classifies linguistic variant using HuggingFace models
-- **`llm_score.py`**: Evaluates response quality using LLM (Gemini)
-- **`run_pipeline.py`**: Orchestrates script execution
+```
+P3B3/
+├── config/                  # Configuration files
+│   └── settings.py         # Model and API settings
+├── resources/              # Static resources
+│   ├── all_prompts.json   # Multi-turn conversation prompts
+│   └── image_markers/     # Provider logos for visualizations
+├── src/                    # Source code
+│   ├── analysis/          # Result aggregation and turn-level analysis
+│   ├── annotation/        # Human annotation tools and agreement metrics
+│   ├── dataset_analysis/  # Diversity metrics and conversation statistics
+│   ├── evaluation/        # Generation and scoring pipelines
+│   ├── models/            # Model backend implementations (API/VLLM/Ollama)
+│   └── utils/             # Shared utilities
+├── results/               # Generated model responses and scores
+├── outputs/               # Analysis outputs and visualizations
+├── run_scripts/         # SLURM job submission scripts
+└── environment.yml        # Conda environment specification
 
-## Pipeline Usage
+```
 
-### Run Full Pipeline
+## Installation
+
+### Environment Setup
+
 ```bash
-# With pipeline
-python run_pipeline.py --generate --class-score --llm-score \
-  --model-name-or-path Qwen/Qwen2.5-7B-Instruct \
-  --output-dir pt-pt-eval
-
-# On cluster (requires GPU for generation)
-srun --pty --gres=gpu:1 --mem 50G python run_pipeline.py --generate --class-score --llm-score \
-  --model-name-or-path Qwen/Qwen2.5-7B-Instruct \
-  --output-dir pt-pt-eval
+# Create conda environment
+conda env create -f environment.yml
+conda activate p3b3
 ```
 
-### Generate Only
+### Configuration
+
+Copy the template environment file and add your API keys:
+
 ```bash
-# With pipeline
-python run_pipeline.py --generate \
-  --model-name-or-path Qwen/Qwen2.5-7B-Instruct \
-  --output-dir pt-pt-eval
+# Copy the template
+cp .env_copy .env
 
-# On cluster (requires GPU)
-srun --pty --gres=gpu:1 --mem 50G python run_pipeline.py --generate \
-  --model-name-or-path Qwen/Qwen2.5-7B-Instruct \
-  --output-dir pt-pt-eval
+# Edit .env and replace with your actual API keys:
+# - GOOGLE_API_KEY: Used by Gemini models
+# - SABIA_API_KEY: Used by Sabia models
+# - OLLAMA_BASE_URL: User for local Ollama models (default: http://localhost:11434)
 ```
 
-### Classify with HuggingFace Only
+Edit `config/settings.py` to adjust:
+- `MAX_RETRIES`: API retry attempts
+- `MAX_OUTPUT_TOKENS`: Generation token limit
+- `MAX_MODEL_LEN`: VLLM context window
+- `MAX_CONNECTIONS`: Concurrent API requests
+
+## Usage
+
+### 1. Generate Conversations
+
+Generate multi-turn conversations with a language model:
+
 ```bash
-# With pipeline
-python run_pipeline.py --class-score --base-dir pt-pt-eval
+# Using API model (e.g., Gemini)
+python -m src.evaluation.generate --model-name-or-path google-langchain-api/gemini-3-flash-preview
 
-# On cluster (requires GPU)
-srun --pty --gres=gpu:1 --mem 50G python run_pipeline.py --class-score --base-dir pt-pt-eval
+# Using VLLM (requires GPU)
+python -m src.evaluation.generate --model-name-or-path meta-llama/Meta-Llama-3-8B-Instruct
+
+# Using Ollama (local)
+python -m src.evaluation.generate --model-name-or-path ollama/llama3
 ```
 
-### Evaluate with LLM Only
+Generates 3 files per model (neutral, pt-pt, pt-br variants) in `results/<model_name>/`
+
+### 2. Score Responses
+
+#### Classifier-based Scoring
+
 ```bash
-# With pipeline (CPU only)
-python run_pipeline.py --llm-score --base-dir pt-pt-eval
-
-# On cluster (CPU only)
-srun --pty --mem 10G python run_pipeline.py --llm-score --base-dir pt-pt-eval
+python -m src.evaluation.score_with_classifier results/<model_folder>
 ```
 
-### Generate + Classify
+Outputs: `results/<model_folder>/class_scores/*.csv`
+
+#### LLM Judge Scoring
+
 ```bash
-# With pipeline
-python run_pipeline.py --generate --class-score \
-  --model-name-or-path Qwen/Qwen2.5-7B-Instruct \
-  --output-dir pt-pt-eval
-
-# On cluster (requires GPU)
-srun --pty --gres=gpu:1 --mem 50G python run_pipeline.py --generate --class-score \
-  --model-name-or-path Qwen/Qwen2.5-7B-Instruct \
-  --output-dir pt-pt-eval
+python -m src.evaluation.score_with_llm \
+    results/<model_folder> \
+    --judge_name gemini-3-flash-preview \
+    --max_connections 50 \
+    --no-accumulate-context
 ```
 
-### Export CSVs from LLM Database
+Outputs: `results/<model_folder>/llm_scores/*.csv`
+
+### 3. Aggregate Results
+
 ```bash
-# With pipeline (CPU only)
-python run_pipeline.py --export-llm --base-dir pt-pt-eval
-
-# On cluster (CPU only)
-srun --pty --mem 10G python run_pipeline.py --export-llm --base-dir pt-pt-eval
+python -m src.analysis.aggregation
 ```
 
-## Individual Script Usage
+Creates:
+- `results/combined_comprehensive_scores.csv` - All model scores
+- `results/z_classifier_scores/` - Aggregated classifier results
+- `results/z_llm_scores/` - Aggregated LLM judge results
 
-### Response Generation
+### 4. Visualize Turn-Level Performance
+
 ```bash
-# Direct
-python generate.py --model-name-or-path Qwen/Qwen2.5-7B-Instruct --base-output-dir pt-pt-eval
-
-# On cluster (requires GPU)
-srun --pty --gres=gpu:1 --mem 50G python generate.py \
-  --model-name-or-path Qwen/Qwen2.5-7B-Instruct \
-  --base-output-dir pt-pt-eval
+python -m src.analysis.turn_analysis \
+    results/z_classifier_scores/turn_level/aggregated_scores_by_turn_normal_all_prompts_PtVId.csv \
+    --max-turns 3
 ```
 
-### HuggingFace Classification
+Generates: `outputs/turn_progression_*.pdf`
+
+## Supported Model Backends
+
+### API Models
+- **Gemini** (via LangChain): `google-langchain-api/gemini-3-flash-preview`
+- **Sabia**: Set API key in `.env`
+
+### VLLM Models
+- Any Hugging Face model with CUDA support
+- Examples: `meta-llama/Meta-Llama-3-8B-Instruct`, `mistralai/Mistral-7B-Instruct-v0.2`
+
+### Ollama Models
+- Running local Ollama server required
+- Format: `ollama/<model_name>`
+
+## Evaluation Metrics
+
+### Classifier Scores
+Transformer-based models classify responses as European Portuguese (pt_pt) or Brazilian Portuguese (pt_br) with confidence scores (0-1).
+
+### LLM Judge Scores
+Gemini evaluates responses on a 0-10 scale with explanations for:
+- Portuguese variant preference
+- Response quality
+- Linguistic markers
+
+
+## Run and Slurm Scripts for Generating and Scoring
+
+Simple script to run a complete pipeline using a VLLM model
 ```bash
-# Direct
-python score.py pt-pt-eval
-
-# On cluster (requires GPU)
-srun --pty --gres=gpu:1 --mem 50G python score.py pt-pt-eval
+# Generate conversations with VLLM
+bash run_scripts/run_pipeline.sh <model_name>
 ```
 
-### LLM Evaluation
+`<model_name>` can be any Hugging Face model compatible with VLLM, e.g., `meta-llama/Meta-Llama-3-8B-Instruct`, Gemini model, or ollama server.
+
+SLURM scripts for batch processing multiple models:
+
 ```bash
-# Direct (CPU only)
-python llm_score.py pt-pt-eval
+# Submit single model job
+sbatch run_scripts/run_single_model.sh <model_path>
 
-# On cluster (CPU only)
-srun --pty --mem 10G python llm_score.py pt-pt-eval
+# Submit all models
+bash run_scripts/submit_all_models.sh
+
+# Run LLM scoring (as a separate step to avoid rate limits)
+sbatch run_scripts/run_llm_scoring.sh
 ```
 
-## Output Structure
+Adapt the scripts to your cluster environment and model list.
 
+
+## Citation
+
+If you find this work relevant please cite:
+
+```bibtex
+@misc{p3b3_dataset,
+  title={{P3B3}: A Multi-Turn Conversational Benchmark for Measuring {Portuguese} Variety Bias in {LLMs}},
+  author={Ferreira, Rafael and Vieira, In{\^e}s and Calvo, In{\^e}s and Furtado, James and Paulo, Iago and Gl{\'o}ria-Silva, Diogo and Tavares, Diogo and Semedo, David and Magalh{\~a}es, Jo{\~a}o},
+  year={2026},
+}
 ```
-pt-pt-eval/
-├── *.json                    # Model responses
-├── class_scores/             # HF classifier scores
-│   └── *_scored_v1.csv
-└── llm_scores/               # LLM scores and DB
-    ├── pt_pt_conversation_evaluations.db
-    └── *_llm_scored.csv
-```
-
-## Supported Models
-
-- **Local**: Any HuggingFace model compatible with vLLM
-- **APIs**: 
-  - `google/gemini-2.0-flash-exp`
-  - `openai/gpt-4o-mini`
-
-## Requirements
-
-- GPU for local models (`--gres=gpu:1`)
-- Environment variables: `GEMINI_API_KEY`, `OPENAI_API_KEY`
-- Dependencies: `vllm`, `transformers`, `google-genai`, `openai`
