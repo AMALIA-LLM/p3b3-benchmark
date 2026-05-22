@@ -109,6 +109,7 @@ def main():
     parser.add_argument("--no-accumulate-context", action="store_true", help="Only use current turn as context instead of accumulating previous turns")
     parser.add_argument("--cache_db_path", type=str, default=".langchain_cache_v2.db", help="Path to cache database")
     parser.add_argument("--max_retries", type=int, default=MAX_RETRIES, help="Maximum number of retries for LLM API calls")
+    parser.add_argument("--sub_folder_name", type=str, default="llm_scores", help="Name of the subfolder to save scored results (default: llm_scores)")
     args = parser.parse_args()
 
     # Initialize LLM client
@@ -150,7 +151,7 @@ def main():
             thinking=False,
         )
 
-        output_dir = Path(args.input_folder) / "llm_scores"
+        output_dir = Path(args.input_folder) / args.sub_folder_name
         output_dir.mkdir(exist_ok=True)
 
         rows = []

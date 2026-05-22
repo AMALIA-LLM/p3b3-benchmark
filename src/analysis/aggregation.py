@@ -1,6 +1,7 @@
 import pandas as pd
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
+import argparse
 
 from .utils import sort_dataframe_by_model_order, get_latest_csv_files
 
@@ -452,9 +453,13 @@ def aggregate_scores_by_turn(results_dir="results"):
 
     return results_by_group_turn
 
-def aggregate_llm_scores(results_dir="results"):
+def aggregate_llm_scores(results_dir="results", llm_scores_subfolder="llm_scores"):
     """
     Aggregate LLM scores from all models.
+
+    Args:
+        results_dir: Path to the results directory
+        llm_scores_subfolder: Name of the subfolder containing LLM scores (default: "llm_scores")
 
     Returns a dictionary with DataFrames organized by prompt_type (and dataset if available).
     """
@@ -467,7 +472,7 @@ def aggregate_llm_scores(results_dir="results"):
             continue
 
         model_name = model_folder.name
-        combined_df = _read_csv_files(model_folder, "llm_scores", split_count=2, verbose=True)
+        combined_df = _read_csv_files(model_folder, llm_scores_subfolder, split_count=2, verbose=True)
 
         if combined_df is None:
             continue
@@ -536,9 +541,13 @@ def aggregate_llm_scores(results_dir="results"):
 
     return results_by_prompt, results_by_prompt_no_not_pt, results_by_prompt_no_invalid, results_by_prompt_no_both
 
-def aggregate_combined_table(results_dir="results"):
+def aggregate_combined_table(results_dir="results", llm_scores_subfolder="llm_scores"):
     """
     Create a single comprehensive table combining classifier scores, LLM scores, and percentages.
+
+    Args:
+        results_dir: Path to the results directory
+        llm_scores_subfolder: Name of the subfolder containing LLM scores (default: "llm_scores")
 
     Returns a DataFrame with:
     - Rows: models
@@ -585,7 +594,7 @@ def aggregate_combined_table(results_dir="results"):
             continue
 
         model_name = model_folder.name
-        combined_df = _read_csv_files(model_folder, "llm_scores", split_count=2, verbose=False)
+        combined_df = _read_csv_files(model_folder, llm_scores_subfolder, split_count=2, verbose=False)
 
         if combined_df is None:
             continue
@@ -692,9 +701,13 @@ def aggregate_combined_table(results_dir="results"):
 
     return combined_df
 
-def aggregate_llm_scores_by_turn(results_dir="results"):
+def aggregate_llm_scores_by_turn(results_dir="results", llm_scores_subfolder="llm_scores"):
     """
     Aggregate LLM scores by turn for each model.
+
+    Args:
+        results_dir: Path to the results directory
+        llm_scores_subfolder: Name of the subfolder containing LLM scores (default: "llm_scores")
 
     Returns a dictionary with per-turn DataFrames organized by prompt_type.
     """
@@ -707,7 +720,7 @@ def aggregate_llm_scores_by_turn(results_dir="results"):
             continue
 
         model_name = model_folder.name
-        combined_df = _read_csv_files(model_folder, "llm_scores", split_count=2, verbose=False)
+        combined_df = _read_csv_files(model_folder, llm_scores_subfolder, split_count=2, verbose=False)
 
         if combined_df is None:
             continue
@@ -805,15 +818,32 @@ def aggregate_llm_scores_by_turn(results_dir="results"):
 
 
 if __name__ == "__main__":
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description="Aggregate model evaluation results")
+    parser.add_argument(
+        "--results_dir",
+        type=str,
+        default="results",
+        help="Path to the results directory (default: results)"
+    )
+    parser.add_argument(
+        "--llm_scores_subfolder",
+        type=str,
+        default="llm_scores",
+        help="Name of the subfolder containing LLM scores (default: llm_scores)"
+    )
+    args = parser.parse_args()
+
     # Define results directory
-    results_dir = "results"
+    results_dir = args.results_dir
+    llm_scores_subfolder = args.llm_scores_subfolder
     results_path = Path(results_dir)
 
     # Create output directory structure
     classifier_general_path = results_path / "z_classifier_scores" / "general"
     classifier_turn_path = results_path / "z_classifier_scores" / "turn_level"
-    llm_general_path = results_path / "z_llm_scores" / "general"
-    llm_turn_path = results_path / "z_llm_scores" / "turn_level"
+    llm_general_path = results_path / f"z_{llm_scores_subfolder}" / "general"
+    llm_turn_path = results_path / f"z_{llm_scores_subfolder}" / "turn_level"
 
     classifier_general_path.mkdir(parents=True, exist_ok=True)
     classifier_turn_path.mkdir(parents=True, exist_ok=True)
@@ -825,7 +855,7 @@ if __name__ == "__main__":
     print("GENERATING COMBINED COMPREHENSIVE TABLE")
     print("="*80 + "\n")
 
-    combined_table = aggregate_combined_table(results_dir)
+    combined_table = aggregate_combined_table(results_dir, llm_scores_subfolder)
 
     if not combined_table.empty:
         print("COMBINED SCORES - ALL PROMPT TYPES")
@@ -834,7 +864,7 @@ if __name__ == "__main__":
         print("\n")
 
         # Save to CSV
-        output_file = results_path / "combined_comprehensive_scores.csv"
+        output_file = results_path / f"combined_comprehensive_scores_{llm_scores_subfolder}.csv"
         combined_table.to_csv(output_file)
         print(f"Combined table saved to: {output_file}\n")
     else:
@@ -910,7 +940,7 @@ if __name__ == "__main__":
     print("GENERATING LLM JUDGE RESULTS")
     print("="*80 + "\n")
 
-    llm_results, llm_results_no_not_pt, llm_results_no_invalid, llm_results_no_both = aggregate_llm_scores(results_dir)
+    llm_results, llm_results_no_not_pt, llm_results_no_invalid, llm_results_no_both = aggregate_llm_scores(results_dir, llm_scores_subfolder)
 
     if llm_results:
         # Display all scores
@@ -980,7 +1010,7 @@ if __name__ == "__main__":
     print("GENERATING PER-TURN LLM JUDGE RESULTS")
     print("="*80 + "\n")
 
-    llm_turn_results, llm_turn_results_no_not_pt, llm_turn_results_no_invalid, llm_turn_results_no_both = aggregate_llm_scores_by_turn(results_dir)
+    llm_turn_results, llm_turn_results_no_not_pt, llm_turn_results_no_invalid, llm_turn_results_no_both = aggregate_llm_scores_by_turn(results_dir, llm_scores_subfolder)
 
     if llm_turn_results:
         # Display all scores
@@ -1047,4 +1077,4 @@ if __name__ == "__main__":
 
 
 # example usage:
-# python3 aggregate_results.py
+# python -m src.analysis.aggregation

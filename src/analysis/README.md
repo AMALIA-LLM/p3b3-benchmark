@@ -18,7 +18,7 @@ Main aggregation script that processes model evaluation results from the `result
 **Output Directory Structure:**
 ```
 results/
-├── combined_comprehensive_scores.csv
+├── combined_comprehensive_scores_llm_scores.csv
 ├── z_classifier_scores/
 │   ├── general/
 │   │   └── aggregated_scores_{prompt_type}_{dataset}.csv

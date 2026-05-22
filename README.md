@@ -108,7 +108,7 @@ python -m src.analysis.aggregation
 ```
 
 Creates:
-- `results/combined_comprehensive_scores.csv` - All model scores
+- `results/combined_comprehensive_scores_llm_scores.csv` - All model scores
 - `results/z_classifier_scores/` - Aggregated classifier results
 - `results/z_llm_scores/` - Aggregated LLM judge results
 

@@ -12,7 +12,6 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=8G
 #SBATCH --time=0-11:00:00
-#SBATCH --partition=high_priority
 
 
 eval "$(conda shell.bash hook)"
