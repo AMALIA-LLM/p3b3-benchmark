@@ -1,32 +1,39 @@
 # P3B3 - Portuguese Language Variant Bias Evaluation
 
-A comprehensive framework for evaluating language model biases toward Portuguese language variants (European Portuguese vs Brazilian Portuguese) through multi-turn conversation generation and automated assessment.
+[![Code](https://img.shields.io/badge/GitHub-P3B3%20Benchmark-blue?logo=github)](https://github.com/AMALIA-LLM/p3b3-benchmark)
+[![Paper: ACL Anthology](https://img.shields.io/badge/Paper-Link-red)](https://arxiv.org/abs/2606.16753)
+[![MeLLM @ ACL 2026](https://img.shields.io/badge/Workshop-MeLLM%20%40%20ACL%202026-green)](https://www.mellm.org/)
+
+
+P3B3 is a benchmark for evaluating language model biases toward Portuguese language variants (European Portuguese vs Brazilian Portuguese) through multi-turn conversation generation and automated assessment.
+
+**Note:** This work has been accepted at the [MeLLM Workshop](https://www.mellm.org/) at ACL 2026. The codebase is provided for reproducibility and further research in this area.
 
 ## Overview
 
-This project investigates whether large language models exhibit preferences or biases toward specific Portuguese language variants when generating responses. The system generates multi-turn conversations, evaluates them using multiple methods (classifier-based and LLM-as-judge), and analyzes performance across different models and prompt conditions.
+This work investigates whether large language models exhibit preferences or biases toward specific Portuguese language variants when generating responses. The system generates multi-turn conversations, evaluates them using multiple methods (classifier-based and LLM-as-judge), and analyzes performance across different models and prompt conditions.
 
 
-## Project Structure
+## Code Structure
 
 ```
 P3B3/
 ├── config/                  # Configuration files
-│   └── settings.py         # Model and API settings
-├── resources/              # Static resources
-│   ├── all_prompts.json   # Multi-turn conversation prompts
-│   └── image_markers/     # Provider logos for visualizations
-├── src/                    # Source code
-│   ├── analysis/          # Result aggregation and turn-level analysis
-│   ├── annotation/        # Human annotation tools and agreement metrics
-│   ├── dataset_analysis/  # Diversity metrics and conversation statistics
-│   ├── evaluation/        # Generation and scoring pipelines
-│   ├── models/            # Model backend implementations (API/VLLM/Ollama)
-│   └── utils/             # Shared utilities
-├── results/               # Generated model responses and scores
-├── outputs/               # Analysis outputs and visualizations
-├── run_scripts/         # SLURM job submission scripts
-└── environment.yml        # Conda environment specification
+│   └── settings.py          # Model and API settings
+├── resources/               # Static resources
+│   ├── all_prompts.json     # Multi-turn conversation prompts
+│   └── image_markers/       # Provider logos for visualizations
+├── src/                     # Source code
+│   ├── analysis/            # Result aggregation and turn-level analysis
+│   ├── annotation/          # Human annotation tools and agreement metrics
+│   ├── dataset_analysis/    # Diversity metrics and conversation statistics
+│   ├── evaluation/          # Generation and scoring pipelines
+│   ├── models/              # Model backend implementations (API/VLLM/Ollama)
+│   └── utils/               # Shared utilities
+├── results/                 # Generated model responses and scores
+├── outputs/                 # Analysis outputs and visualizations
+├── run_scripts/             # SLURM job submission scripts
+└── environment.yml          # Conda environment specification
 
 ```
 
@@ -48,10 +55,10 @@ Copy the template environment file and add your API keys:
 # Copy the template
 cp .env_copy .env
 
-# Edit .env and replace with your actual API keys:
-# - GOOGLE_API_KEY: Used by Gemini models
-# - SABIA_API_KEY: Used by Sabia models
-# - OLLAMA_BASE_URL: User for local Ollama models (default: http://localhost:11434)
+# Edit .env and replace with your actual API keys as needed:
+# - GEMINI_API_KEY: Used by Gemini models
+# - MARITACA_API_KEY: Used by Sabia models
+# - OLLAMA_BASE_URL: User for local Ollama models
 ```
 
 Edit `config/settings.py` to adjust:
@@ -64,7 +71,7 @@ Edit `config/settings.py` to adjust:
 
 ### 1. Generate Conversations
 
-Generate multi-turn conversations with a language model:
+Generate multi-turn responses using a language model:
 
 ```bash
 # Using API model (e.g., Gemini)
@@ -139,12 +146,11 @@ Generates: `outputs/turn_progression_*.pdf`
 ## Evaluation Metrics
 
 ### Classifier Scores
-Transformer-based models classify responses as European Portuguese (pt_pt) or Brazilian Portuguese (pt_br) with confidence scores (0-1).
+Transformer-based models classify responses as European Portuguese (pt_pt) or Brazilian Portuguese (pt_br) with probability scores (0-1).
 
 ### LLM Judge Scores
 Gemini evaluates responses on a 0-10 scale with explanations for:
 - Portuguese variant preference
-- Response quality
 - Linguistic markers
 
 
@@ -179,9 +185,15 @@ Adapt the scripts to your cluster environment and model list.
 If you find this work relevant please cite:
 
 ```bibtex
-@misc{p3b3_dataset,
-  title={{P3B3}: A Multi-Turn Conversational Benchmark for Measuring {Portuguese} Variety Bias in {LLMs}},
-  author={Ferreira, Rafael and Vieira, In{\^e}s and Calvo, In{\^e}s and Furtado, James and Paulo, Iago and Gl{\'o}ria-Silva, Diogo and Tavares, Diogo and Semedo, David and Magalh{\~a}es, Jo{\~a}o},
-  year={2026},
+@inproceedings{ferreira_p3b3,
+      title={{P3B3}: A Multi-Turn Conversational Benchmark for Measuring European and Brazilian Portuguese Variety Bias in {LLMs}}, 
+      author={Rafael Ferreira and Inês Vieira and Inês Calvo and James Furtado and Iago Paulo and Diogo Tavares and Diogo Glória-Silva and David Semedo and João Magalhães},
+      booktitle={Proceedings of the 1st Workshop on Multilinguality in the Era of Large Language Models (MeLLM)},
+      year={2026},
+      publisher={Association for Computational Linguistics},
+      eprint={2606.16753},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2606.16753}, 
 }
 ```

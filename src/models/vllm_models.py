@@ -19,7 +19,7 @@ class VLLMModel(Model):
             max_size = 8192
 
         self.model = LLM(model=model_name, seed=42, dtype="bfloat16", max_model_len=max_size,
-                         gpu_memory_utilization=0.95,  # TODO change this as needed
+                         gpu_memory_utilization=0.80,  # TODO change this as needed
                          tensor_parallel_size=self.num_gpus)
         self.extra_msgs: TurnedPrompt = [{"role": "system", "content": system_prompt}] if system_prompt else []
         self.get_args = gen_args
