@@ -185,7 +185,7 @@ def main():
 
     # Example: include these models
     include_models = [
-        "carminho-AMALIA-9B-50-1225-DPO",
+        "amalia-llm-AMALIA-9B-50-1225-DPO",
         "swiss-ai-Apertus-8B-Instruct-2509",
         "utter-project-EuroLLM-9B-Instruct-2512",
         "google-gemma-3-12b-it",

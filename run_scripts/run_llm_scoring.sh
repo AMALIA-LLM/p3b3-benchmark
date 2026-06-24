@@ -36,8 +36,8 @@ DIRECTORIES=(
 #    "$HOME/P3B3/results/utter-project-EuroLLM-22B-Instruct-2512"
 #    "$HOME/P3B3/results/utter-project-EuroLLM-9B-Instruct-2512"
 #
-#    "$HOME/P3B3/results/carminho-AMALIA-9B-50-1225-DPO"
-#    "$HOME/P3B3/results/carminho-AMALIA-9B-50-1225-SFT"
+#    "$HOME/P3B3/results/amalia-llm-AMALIA-9B-50-1225-DPO"
+#    "$HOME/P3B3/results/amalia-llm-AMALIA-9B-50-1225-SFT"
 #
 #    "$HOME/P3B3/results/google-gemma-3-12b-it"
 #    "$HOME/P3B3/results/google-gemma-3-27b-it"

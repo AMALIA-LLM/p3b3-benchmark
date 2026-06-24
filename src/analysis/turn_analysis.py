@@ -28,7 +28,7 @@ PROVIDER_CONFIG = [
     {'name': 'allenai', 'prefix': 'allenai', 'marker': 's', 'colors': ['#3498db', '#2980b9', '#5dade2'], 'image': 'olmo.webp'},
     {'name': 'utter-project', 'prefix': 'utter-project', 'marker': '^', 'colors': ['#9b59b6', '#8e44ad'], 'image': 'eurollm.webp'},
     {'name': 'swiss-ai', 'prefix': 'swiss-ai', 'marker': 'D', 'colors': ['#e67e22', '#d35400'], 'image': 'apertus.webp'},
-    {'name': 'carminho', 'prefix': 'carminho', 'marker': 'v', 'colors': ['#1abc9c', '#16a085'], 'image': 'amalia.webp'},
+    {'name': 'amalia-llm', 'prefix': 'amalia-llm', 'marker': 'v', 'colors': ['#1abc9c', '#16a085'], 'image': 'amalia.webp'},
     {'name': 'meta-llama', 'prefix': 'meta-llama', 'marker': 'p', 'colors': ['#2ecc71', '#27ae60'], 'image': 'meta.webp'},
     {'name': 'PORTULAN', 'prefix': 'PORTULAN', 'marker': '*', 'colors': ['#f39c12', '#e67e22'], 'image': 'gervasio.webp'},
     {'name': 'mistralai', 'prefix': 'mistralai', 'marker': 'h', 'colors': ['#34495e', '#2c3e50']},
@@ -236,7 +236,7 @@ def plot_turn_progression(csv_path, show_plots=True, exclude_models=None, output
         image_path = None
         if use_images and image_filename:
             # Use bigger zoom for specific providers
-            zoom = 0.16 if provider == 'carminho' else 0.10
+            zoom = 0.16 if provider == 'amalia-llm' else 0.10
             if provider == "meta-llama":
                 zoom = 0.12
             imagebox = load_image_marker(image_filename, zoom=zoom)
@@ -264,7 +264,7 @@ def plot_turn_progression(csv_path, show_plots=True, exclude_models=None, output
                 # Create custom legend handle with image
                 legend_handle = Line2D([0], [0], color=color, linewidth=LINE_WIDTH, label=display_name)
                 # Use bigger zoom for specific providers in legend too
-                legend_zoom = 0.14 if provider == 'carminho' else 0.07
+                legend_zoom = 0.14 if provider == 'amalia-llm' else 0.07
                 if provider == 'meta-llama':
                     legend_zoom = 0.12
                 handler_map[legend_handle] = ImageHandler(image_path, zoom=legend_zoom)
@@ -348,7 +348,7 @@ Examples:
         # keeping the graph more clean with fewer models
         default=["maritaca-api-sabia-3.1", "openai-gpt-oss-20b", 'Qwen-Qwen3.5-9B', "google-gemma-3-27b-it",
                  "google-gemma-3-12b-it", "Polygl0t-Tucano2-qwen-3.7B-Instruct",
-                 "PORTULAN-gervasio-70b-portuguese-ptpt-decoder", "carminho-AMALIA-9B-50-1225-SFT",
+                 "PORTULAN-gervasio-70b-portuguese-ptpt-decoder", "amalia-llm-AMALIA-9B-50-1225-SFT",
                  "allenai-Olmo-3-7B-Instruct", "google-gemma-4-E4B-it", "swiss-ai-Apertus-70B-Instruct-2509",
                  "utter-project-EuroLLM-9B-Instruct-2512", 'mistralai-Ministral-3-14B-Instruct-2512',
                  'BSC-LT-salamandra-7b-instruct'],

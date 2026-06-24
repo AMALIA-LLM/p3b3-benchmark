@@ -20,8 +20,8 @@ MODELS=(
     #"utter-project/EuroLLM-9B-Instruct-2512"
     #"utter-project/EuroLLM-22B-Instruct-2512"
 
-    #"carminho/AMALIA-9B-50-1225-SFT"
-    #"carminho/AMALIA-9B-50-1225-DPO"
+    #"amalia-llm/AMALIA-9B-50-1225-SFT"
+    #"amalia-llm/AMALIA-9B-50-1225-DPO"
 
     #"meta-llama/Llama-3.1-8B-Instruct"
     #"meta-llama/Llama-3.3-70B-Instruct"
