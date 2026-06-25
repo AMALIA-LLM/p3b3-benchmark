@@ -1,13 +1,13 @@
-# P3B3 - Portuguese Language Variant Bias Evaluation
+# P3B3: A Multi-Turn Conversational Benchmark for Measuring European and Brazilian Portuguese Variety Bias in LLMs
 
 [![Code](https://img.shields.io/badge/GitHub-P3B3%20Benchmark-blue?logo=github)](https://github.com/AMALIA-LLM/p3b3-benchmark)
 [![Paper: ACL Anthology](https://img.shields.io/badge/Paper-Link-red)](https://arxiv.org/abs/2606.16753)
 [![MeLLM @ ACL 2026](https://img.shields.io/badge/Workshop-MeLLM%20%40%20ACL%202026-green)](https://www.mellm.org/)
 
+This repository provides the code and resources for running the P3B3 benchmark, introduced in the paper
+[P3B3: A Multi-Turn Conversational Benchmark for Measuring European and Brazilian Portuguese Variety Bias in LLMs](https://arxiv.org/abs/2606.16753v1), accepted at the [MeLLM Workshop](https://www.mellm.org/) at ACL 2026.
 
 P3B3 is a benchmark for evaluating language model biases toward Portuguese language variants (European Portuguese vs Brazilian Portuguese) through multi-turn conversation generation and automated assessment.
-
-**Note:** This work has been accepted at the [MeLLM Workshop](https://www.mellm.org/) at ACL 2026. The codebase is provided for reproducibility and further research in this area.
 
 ## Overview
 
@@ -132,7 +132,7 @@ Generates: `outputs/turn_progression_*.pdf`
 ## Supported Model Backends
 
 ### API Models
-- **Gemini** (via LangChain): `google-langchain-api/gemini-3-flash-preview`
+- **Gemini** (via LangChain): e.g. `google-langchain-api/gemini-3-flash-preview`
 - **Sabia**: Set API key in `.env`
 
 ### VLLM Models
@@ -156,13 +156,13 @@ Gemini evaluates responses on a 0-10 scale with explanations for:
 
 ## Run and Slurm Scripts for Generating and Scoring
 
-Simple script to run a complete pipeline using a VLLM model
+Simple script to run a complete pipeline using vLLM
 ```bash
-# Generate conversations with VLLM
+# Generate conversations with vLLM
 bash run_scripts/run_pipeline.sh <model_name>
 ```
 
-`<model_name>` can be any Hugging Face model compatible with VLLM, e.g., `meta-llama/Meta-Llama-3-8B-Instruct`, Gemini model, or ollama server.
+`<model_name>` can be any Hugging Face model compatible with vLLM, e.g., `meta-llama/Meta-Llama-3-8B-Instruct`, Gemini model, or ollama server.
 
 SLURM scripts for batch processing multiple models:
 
