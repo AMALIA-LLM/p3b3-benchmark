@@ -64,7 +64,7 @@ cp .env_copy .env
 Edit `config/settings.py` to adjust:
 - `MAX_RETRIES`: API retry attempts
 - `MAX_OUTPUT_TOKENS`: Generation token limit
-- `MAX_MODEL_LEN`: VLLM context window
+- `MAX_MODEL_LEN`: vLLM context window
 - `MAX_CONNECTIONS`: Concurrent API requests
 
 ## Usage
@@ -77,7 +77,7 @@ Generate multi-turn responses using a language model:
 # Using API model (e.g., Gemini)
 python -m src.evaluation.generate --model-name-or-path google-langchain-api/gemini-3-flash-preview
 
-# Using VLLM (requires GPU)
+# Using vLLM (requires GPU)
 python -m src.evaluation.generate --model-name-or-path meta-llama/Meta-Llama-3-8B-Instruct
 
 # Using Ollama (local)
@@ -135,7 +135,7 @@ Generates: `outputs/turn_progression_*.pdf`
 - **Gemini** (via LangChain): e.g. `google-langchain-api/gemini-3-flash-preview`
 - **Sabia**: Set API key in `.env`
 
-### VLLM Models
+### vLLM Models
 - Any Hugging Face model with CUDA support
 - Examples: `meta-llama/Meta-Llama-3-8B-Instruct`, `mistralai/Mistral-7B-Instruct-v0.2`
 
